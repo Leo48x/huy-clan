@@ -627,6 +627,104 @@
     font-size: 18px;
   }
 
+  /* ---- MEMBER MODAL ---- */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 5000;
+    background: rgba(3, 8, 18, 0.85);
+    backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+  }
+  .modal-overlay.open {
+    opacity: 1;
+    pointer-events: all;
+  }
+  .modal {
+    background: linear-gradient(135deg, rgba(10,25,50,0.98), rgba(7,20,40,0.98));
+    border: 1px solid rgba(42,127,255,0.25);
+    border-radius: 20px;
+    padding: 36px 32px 32px;
+    max-width: 420px;
+    width: 100%;
+    position: relative;
+    transform: translateY(16px) scale(0.97);
+    transition: transform 0.25s ease;
+    box-shadow: 0 32px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(42,127,255,0.1);
+  }
+  .modal-overlay.open .modal {
+    transform: translateY(0) scale(1);
+  }
+  .modal-close {
+    position: absolute;
+    top: 16px; right: 16px;
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    border: 1px solid rgba(42,127,255,0.2);
+    background: rgba(42,127,255,0.08);
+    color: var(--white-dim);
+    font-size: 16px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s;
+    line-height: 1;
+  }
+  .modal-close:hover { background: rgba(42,127,255,0.2); color: var(--white); }
+  .modal-header {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    margin-bottom: 20px;
+  }
+  .modal-avatar {
+    width: 72px; height: 72px;
+    border-radius: 12px;
+    image-rendering: pixelated;
+    flex-shrink: 0;
+  }
+  .modal-info { flex: 1; min-width: 0; }
+  .modal-name {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--white);
+    letter-spacing: 0.5px;
+    line-height: 1.1;
+  }
+  .modal-role-tag {
+    display: inline-block;
+    margin-top: 6px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 3px 10px;
+    border-radius: 3px;
+  }
+  .modal-divider {
+    width: 100%;
+    height: 1px;
+    background: rgba(42,127,255,0.12);
+    margin-bottom: 18px;
+  }
+  .modal-bio {
+    font-size: 14px;
+    line-height: 1.75;
+    color: var(--white-dim);
+  }
+  .modal-bio em {
+    color: rgba(160,196,232,0.45);
+    font-style: italic;
+    font-size: 13px;
+  }
+  .member-card { cursor: pointer; }
+
   /* ---- EVENTS SECTION ---- */
   .events-grid {
     display: grid;
@@ -963,8 +1061,24 @@
   </div>
 </div>
 
+<!-- MEMBER MODAL -->
+<div class="modal-overlay" id="memberModal" onclick="closeModal(event)">
+  <div class="modal">
+    <button class="modal-close" onclick="closeMemberModal()">✕</button>
+    <div class="modal-header">
+      <img class="modal-avatar" id="modal-avatar" src="" alt="" />
+      <div class="modal-info">
+        <div class="modal-name" id="modal-name"></div>
+        <div class="modal-role-tag" id="modal-role"></div>
+      </div>
+    </div>
+    <div class="modal-divider"></div>
+    <div class="modal-bio" id="modal-bio"></div>
+  </div>
+</div>
+
 <footer>
-  <p>© 2025 <strong>HUY CLAN</strong> · Official Clan von <strong>HuyTastic</strong> · Alle Rechte vorbehalten</p>
+  <p>© 2026 <strong>HUY CLAN</strong> · Official Clan von <strong>HuyTastic</strong> · Alle Rechte vorbehalten</p>
 </footer>
 
 <script>
@@ -973,28 +1087,28 @@
 // ==============================
 // uuid = Minecraft UUID (ohne Bindestriche) ODER Minecraft Username
 // Beispiel: { name: "HuyTastic", role: "owner", uuid: "HuyTastic" }
+// bio = Kurzer Text über das Mitglied (2-3 Sätze) – hier einfach anpassen!
 const members = [
-  { name: "HuyTastic",  role: "owner",     uuid: "f4057b53-1366-493a-96c3-c7cce823e30d" },
-  { name: "Midwaycc",  role: "co-owner",  uuid: "8414b198-5c51-40c4-b752-729b4a01640d" },
-  { name: "NightWolf",  role: "co-owner",  uuid: "NightWolf" },
-  { name: "PixelStorm", role: "moderator", uuid: "PixelStorm" },
-  { name: "AquaShield", role: "moderator", uuid: "AquaShield" },
-  { name: "BladeRunner",role: "moderator", uuid: "BladeRunner" },
-  { name: "SkyForge",   role: "member",    uuid: "SkyForge" },
-  { name: "IronClad",   role: "member",    uuid: "IronClad" },
-  { name: "VoidWalker", role: "member",    uuid: "VoidWalker" },
-  { name: "CrystalEdge",role: "member",    uuid: "CrystalEdge" },
-  { name: "ThunderBolt",role: "member",    uuid: "ThunderBolt" },
-  { name: "LunarBow",   role: "member",    uuid: "LunarBow" },
-  { name: "RedDawn",    role: "member",    uuid: "RedDawn" },
-  { name: "SilverFang", role: "member",    uuid: "SilverFang" },
-  { name: "EmberCraft", role: "member",    uuid: "EmberCraft" },
-  { name: "ZephyrWing", role: "member",    uuid: "ZephyrWing" },
-  { name: "CoralMine",  role: "member",    uuid: "CoralMine" },
-  { name: "StormBreak", role: "member",    uuid: "StormBreak" },
-  { name: "DuskFire",   role: "member",    uuid: "DuskFire" },
-  { name: "NovaBurst",  role: "member",    uuid: "NovaBurst" },
-  { name: "FrostPike",  role: "member",    uuid: "FrostPike" },
+  { name: "huytastic",        role: "owner",     uuid: "huytastic",        bio: "Hier kannst du einen kurzen Text über huytastic einfügen." },
+  { name: "FallendeRose",     role: "co-owner",  uuid: "FallendeRose",     bio: "Hier kannst du einen kurzen Text über FallendeRose einfügen." },
+  { name: "Midwaycc",         role: "co-owner",  uuid: "Midwaycc",         bio: "Hier kannst du einen kurzen Text über Midwaycc einfügen." },
+  { name: "M1kator",          role: "moderator", uuid: "M1kator",          bio: "Hier kannst du einen kurzen Text über M1kator einfügen." },
+  { name: "Jaanjo",           role: "member",    uuid: "Jaanjo",           bio: "Hier kannst du einen kurzen Text über Jaanjo einfügen." },
+  { name: "Julien_259",       role: "member",    uuid: "Julien_259",       bio: "Hier kannst du einen kurzen Text über Julien_259 einfügen." },
+  { name: "Pembuu",           role: "member",    uuid: "Pembuu",           bio: "Hier kannst du einen kurzen Text über Pembuu einfügen." },
+  { name: "HTS1_Steaky",      role: "member",    uuid: "HTS1_Steaky",      bio: "Hier kannst du einen kurzen Text über HTS1_Steaky einfügen." },
+  { name: "Dieratte___",      role: "member",    uuid: "Dieratte___",      bio: "Hier kannst du einen kurzen Text über Dieratte___ einfügen." },
+  { name: "Toeqfer",          role: "member",    uuid: "Toeqfer",          bio: "Hier kannst du einen kurzen Text über Toeqfer einfügen." },
+  { name: "Wild_Jonas",       role: "member",    uuid: "Wild_Jonas",       bio: "Hier kannst du einen kurzen Text über Wild_Jonas einfügen." },
+  { name: "JaNnIsk1lly0u",    role: "member",    uuid: "JaNnIsk1lly0u",    bio: "Hier kannst du einen kurzen Text über JaNnIsk1lly0u einfügen." },
+  { name: "michagabriel6",    role: "member",    uuid: "michagabriel6",    bio: "Hier kannst du einen kurzen Text über michagabriel6 einfügen." },
+  { name: "v2_W",             role: "member",    uuid: "v2_W",             bio: "Hier kannst du einen kurzen Text über v2_W einfügen." },
+  { name: "Fynnton",          role: "member",    uuid: "Fynnton",          bio: "Hier kannst du einen kurzen Text über Fynnton einfügen." },
+  { name: "Luksi1HD",         role: "member",    uuid: "Luksi1HD",         bio: "Hier kannst du einen kurzen Text über Luksi1HD einfügen." },
+  { name: "Crazy_CTF",        role: "member",    uuid: "Crazy_CTF",        bio: "Hier kannst du einen kurzen Text über Crazy_CTF einfügen." },
+  { name: "Drill_Sigma",      role: "member",    uuid: "Drill_Sigma",      bio: "Hier kannst du einen kurzen Text über Drill_Sigma einfügen." },
+  { name: "Wettermann_",      role: "member",    uuid: "Wettermann_",      bio: "Hier kannst du einen kurzen Text über Wettermann_ einfügen." },
+  { name: "TubaArmband3939",  role: "member",    uuid: "TubaArmband3939",  bio: "Hier kannst du einen kurzen Text über TubaArmband3939 einfügen." },
 ];
 
 const events = [
@@ -1140,6 +1254,7 @@ function buildMembersPage() {
       const card = document.createElement('div');
       const cardClass = role === 'owner' ? 'owner-card' : role === 'co-owner' ? 'co-owner-card' : role === 'moderator' ? 'mod-card' : '';
       card.className = `member-card ${cardClass}`;
+      card.onclick = () => openMemberModal(m);
       card.innerHTML = `
         ${role === 'owner' ? '<div class="owner-crown">👑</div>' : ''}
         <img class="card-avatar" src="${imgSrc}" alt="${m.name}" onerror="this.src='${fallback}'" />
@@ -1306,6 +1421,58 @@ function animateCounters() {
     }, 40);
   });
 }
+
+// ==============================
+// MEMBER MODAL
+// ==============================
+const roleColors = {
+  owner: { color: '#ffd700', bg: 'rgba(255,215,0,0.1)', border: 'rgba(255,215,0,0.35)' },
+  'co-owner': { color: '#b0c4d8', bg: 'rgba(176,196,216,0.1)', border: 'rgba(176,196,216,0.35)' },
+  moderator: { color: '#44e5e7', bg: 'rgba(68,229,231,0.1)', border: 'rgba(68,229,231,0.35)' },
+  member: { color: '#4da6ff', bg: 'rgba(42,127,255,0.1)', border: 'rgba(42,127,255,0.35)' },
+};
+const roleLabels = { owner: 'Owner', 'co-owner': 'Co-Owner', moderator: 'Moderator', member: 'Member' };
+
+function openMemberModal(m) {
+  const rc = roleColors[m.role];
+  const modal = document.getElementById('memberModal');
+  const imgSrc = skinUrl(m.uuid, 144);
+  const fallback = generateFallbackAvatar(m.name, 144);
+
+  const avatarEl = document.getElementById('modal-avatar');
+  avatarEl.src = imgSrc;
+  avatarEl.onerror = () => { avatarEl.src = fallback; };
+
+  document.getElementById('modal-name').textContent = m.name;
+
+  const roleEl = document.getElementById('modal-role');
+  roleEl.textContent = roleLabels[m.role];
+  roleEl.style.color = rc.color;
+  roleEl.style.background = rc.bg;
+  roleEl.style.border = `1px solid ${rc.border}`;
+
+  // Border accent on modal based on role
+  modal.querySelector('.modal').style.borderColor = rc.border;
+
+  const bioEl = document.getElementById('modal-bio');
+  bioEl.innerHTML = m.bio
+    ? m.bio.replace(/\n/g, '<br>')
+    : '<em>Noch kein Text eingetragen.</em>';
+
+  modal.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeMemberModal() {
+  document.getElementById('memberModal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function closeModal(e) {
+  if (e.target === document.getElementById('memberModal')) closeMemberModal();
+}
+
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeMemberModal(); });
 
 // ==============================
 // PAGE NAVIGATION
