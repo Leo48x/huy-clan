@@ -1161,8 +1161,8 @@ const events = [
 // uuid kann ein Username oder eine UUID (ohne Bindestriche) sein.
 // ==============================
 function skinUrl(uuid, size) {
-  // Crafatar liefert den Skin-Head als Bild direkt über Username oder UUID
-  return `https://crafatar.com/avatars/${encodeURIComponent(uuid)}?size=${size}&overlay&default=MHF_Steve`;
+  // mc-heads.net liefert den Skin-Head als Bild direkt über Username oder UUID
+  return `https://mc-heads.net/avatar/${encodeURIComponent(uuid)}/${size}`;
 }
 
 // Fallback: generierter Avatar für den Fall dass Crafatar nicht erreichbar ist
